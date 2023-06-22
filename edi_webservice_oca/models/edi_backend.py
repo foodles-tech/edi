@@ -1,6 +1,8 @@
 # Copyright 2020 Creu Blanca
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from requests.exceptions import HTTPError
+
 from odoo import fields, models
 
 
@@ -33,3 +35,6 @@ class EdiBackend(models.Model):
         return (
             1 if getattr(component_class, "_webservice_protocol", False) else 0,
         ) + res
+
+    def _swallable_exceptions(self):
+        return super()._swallable_exceptions() + (HTTPError,)

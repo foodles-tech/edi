@@ -2,6 +2,8 @@
 # @author: Simone Orsi <simahawk@gmail.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from requests.exceptions import HTTPError
+
 from odoo import _, exceptions
 
 from odoo.addons.component.core import Component
@@ -27,7 +29,25 @@ class EDIWebserviceSend(Component):
 
     def send(self):
         method, pargs, kwargs = self._get_call_params()
-        return self.webservice_backend.call(method, *pargs, **kwargs)
+        response_content = ""
+        status_code = False
+        try:
+            response_content = self.webservice_backend.call(method, *pargs, **kwargs)
+        except HTTPError as err:
+            response_content = err.response.content
+            status_code = err.response.status_code
+            raise err from err
+        except Exception as ex:
+            response_content = ""
+            raise ex from ex
+        else:
+            status_code = 200
+        finally:
+            self.exchange_record._set_file_content(
+                response_content, field_name="ws_response_content"
+            )
+            self.exchange_record.ws_response_status_code = status_code
+        return response_content
 
     def _get_call_params(self):
         try:
