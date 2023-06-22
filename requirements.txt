@@ -8,4 +8,3 @@ phonenumbers
 pyyaml
 regex
 xmlschema
-odoo14-addon-webservice @ git+https://github.com/OCA/web-api.git@refs/pull/22/head#subdirectory=setup/webservice
