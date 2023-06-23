@@ -1,4 +1,4 @@
-# Copyright 2022 Foodles (http://www.foodles.co).
+# Copyright 2023 Foodles (http://www.foodles.co).
 # @author Pierre Verkest <pierreverkest84@gmail.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from unittest import mock
@@ -13,6 +13,7 @@ class TestSend(TestEDIWebserviceBase):
     def _setup_records(cls):
         super()._setup_records()
         cls.ws_backend = cls.backend.webservice_backend_id
+        cls.ws_backend.save_response = True
         cls.settings = """
         components:
           send:
@@ -43,7 +44,7 @@ class TestSend(TestEDIWebserviceBase):
         )
 
     @responses.activate
-    def test_component_send_save_results_on_error(self):
+    def test_component_send_save_results_on_http_error(self):
         self.record.type_id.set_settings(self.settings)
         url = "https://foo.test/push/here"
         response = (
@@ -72,7 +73,8 @@ class TestSend(TestEDIWebserviceBase):
             "first call content", field_name="ws_response_content"
         )
         with mock.patch(
-            "odoo.addons.webservice.components.request_adapter.BaseRestRequestsAdapter.post",
+            "odoo.addons.webservice.components.request_adapter."
+            "BaseRestRequestsAdapter._get_url",
             side_effect=Exception("Not an HTTPError"),
         ):
             with self.assertRaisesRegex(Exception, "Not an HTTPError"):

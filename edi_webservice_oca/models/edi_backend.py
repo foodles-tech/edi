@@ -37,4 +37,8 @@ class EdiBackend(models.Model):
         ) + res
 
     def _swallable_exceptions(self):
-        return super()._swallable_exceptions() + (HTTPError,)
+        exceptions = super()._swallable_exceptions()
+        self.ensure_one()
+        if self.webservice_backend_id.save_response:
+            exceptions += (HTTPError,)
+        return exceptions
