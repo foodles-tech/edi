@@ -23,7 +23,7 @@ class EDIWebserviceSend(Component):
     def __init__(self, work_context):
         super().__init__(work_context)
         self.ws_settings = getattr(work_context, "webservice", {})
-        self.webservice_backend = self.backend.webservice_backend_id
+        self.webservice_backend = self.backend.webservice_backend_id.sudo()
 
     def send(self):
         method, pargs, kwargs = self._get_call_params()
