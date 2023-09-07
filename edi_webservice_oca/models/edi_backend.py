@@ -24,7 +24,7 @@ class EdiBackend(models.Model):
         res = super()._component_match_attrs(exchange_record, key)
         if not self.webservice_backend_id or key not in self._webservice_actions:
             return res
-        res["webservice_protocol"] = self.webservice_backend_id.protocol
+        res["webservice_protocol"] = self.webservice_backend_id.sudo().protocol
         return res
 
     def _component_sort_key(self, component_class):
