@@ -3,9 +3,13 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 
+from requests.exceptions import HTTPError
+
 from odoo import _, exceptions
 
 from odoo.addons.component.core import Component
+
+from ..exceptions import EDIWebserviceSendHTTPException
 
 
 class EDIWebserviceSend(Component):
@@ -28,9 +32,12 @@ class EDIWebserviceSend(Component):
 
     def send(self):
         method, pargs, kwargs = self._get_call_params()
-        return self.webservice_backend.call(
-            method, *pargs, consumer_record=self.exchange_record, **kwargs
-        )
+        try:
+            return self.webservice_backend.call(
+                method, *pargs, consumer_record=self.exchange_record, **kwargs
+            )
+        except HTTPError as err:
+            raise EDIWebserviceSendHTTPException("EDI HTTP Error: %s" % err) from err
 
     def _get_call_params(self):
         try:
